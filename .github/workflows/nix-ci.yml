@@ -38,9 +38,9 @@ jobs:
 
       - id: set-matrix
         run: |
-          packages=$(nix eval --json .#packages.x86_64-linux --apply builtins.attrNames)
+          packages=$(nix eval --json .#packages.x86_64-linux --apply builtins.attrNames 2>/dev/null || echo '[]')
           devShells=$(nix eval --json .#devShells.x86_64-linux --apply \
-            'shells: builtins.map (k: "devShells.x86_64-linux.${k}") (builtins.attrNames shells)')
+            'shells: builtins.map (k: "devShells.x86_64-linux.${k}") (builtins.attrNames shells)' 2>/dev/null || echo '[]')
           echo "packages=$(jq -cn --argjson p "$packages" --argjson d "$devShells" '$p + $d')" >> "$GITHUB_OUTPUT"
 
   build:
