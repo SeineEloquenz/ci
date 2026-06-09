@@ -28,7 +28,7 @@ jobs:
       - name: Check for Android SDK updates
         id: update
         run: |
-          nix run github:SeineEloquenz/nix-ci#check-android-versions -- "${{ inputs.nix-file }}"
+          nix run github:SeineEloquenz/ci#check-android-versions -- "${{ inputs.nix-file }}"
 
       - name: Create or update pull request
         if: steps.update.outputs.updated == 'true'
