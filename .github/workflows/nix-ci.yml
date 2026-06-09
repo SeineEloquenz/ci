@@ -38,10 +38,10 @@ jobs:
 
       - id: set-matrix
         run: |
-          echo "packages=$(nix flake show --json | jq -c '[
-            (.packages."x86_64-linux" // {} | keys[]),
-            (.devShells."x86_64-linux" // {} | keys[] | "devShells.x86_64-linux.\(.)")
-          ]')" >> "$GITHUB_OUTPUT"
+          packages=$(nix eval --json .#packages.x86_64-linux --apply builtins.attrNames)
+          devShells=$(nix eval --json .#devShells.x86_64-linux --apply \
+            'shells: builtins.map (k: "devShells.x86_64-linux.${k}") (builtins.attrNames shells)')
+          echo "packages=$(jq -cn --argjson p "$packages" --argjson d "$devShells" '$p + $d')" >> "$GITHUB_OUTPUT"
 
   build:
     runs-on: ubuntu-latest
