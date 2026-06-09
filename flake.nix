@@ -13,9 +13,9 @@
     in
     {
       packages = nixpkgs.lib.genAttrs systems (system: {
-        check-android-versions = nixpkgs.legacyPackages.${system}.callPackage
-          ./check-android-versions
-          { };
+        check-android-versions =
+          nixpkgs.legacyPackages.${system}.callPackage ./pkgs/check-android-versions
+            { };
       });
     };
 }
