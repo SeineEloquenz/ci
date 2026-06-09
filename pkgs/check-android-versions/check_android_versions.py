@@ -119,9 +119,7 @@ def main() -> int:
     )
     parser.add_argument(
         "shell_file",
-        nargs="?",
-        default="shell.nix",
-        help="Path to the shell.nix file to update (default: shell.nix)",
+        help="Path to the shell.nix file to update",
     )
     args = parser.parse_args()
     shell_path = args.shell_file
