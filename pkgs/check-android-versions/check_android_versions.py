@@ -156,11 +156,17 @@ def main() -> int:
 
     changes = []
 
-    if cur_bt != latest_bt:
+    if version_key(latest_bt) > version_key(cur_bt):
         changes.append(f"- build-tools: `{cur_bt}` → `{latest_bt}`")
+        new_bt = latest_bt
+    else:
+        new_bt = cur_bt
 
-    if cur_plat != latest_plat:
+    if int(latest_plat) > int(cur_plat):
         changes.append(f"- platform: `android-{cur_plat}` → `android-{latest_plat}`")
+        new_plat = latest_plat
+    else:
+        new_plat = cur_plat
 
     if not changes:
         print("\nAll Android SDK versions are up to date.")
@@ -173,13 +179,13 @@ def main() -> int:
 
     updated = re.sub(
         r'(buildToolsVersion\s*=\s*")[^"]+(")',
-        rf"\g<1>{latest_bt}\2",
+        rf"\g<1>{new_bt}\2",
         updated,
     )
 
     updated = re.sub(
         r'(platformVersions\s*=\s*\[)\s*"[^"]+"\s*(\])',
-        rf'\g<1> "{latest_plat}" \2',
+        rf'\g<1> "{new_plat}" \2',
         updated,
     )
 
