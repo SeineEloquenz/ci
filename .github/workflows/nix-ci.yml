@@ -26,7 +26,7 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
 
       - name: Check flake
         run: nix flake check
@@ -43,7 +43,7 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
 
       - id: set-matrix
         run: echo "matrix=$(nix run github:SeineEloquenz/ci#flake-ci-matrix)" >> "$GITHUB_OUTPUT"
@@ -67,9 +67,9 @@ jobs:
           extra_nix_config: |
             experimental-features = nix-command flakes
 
-      - uses: DeterminateSystems/magic-nix-cache-action@v14
+      - uses: DeterminateSystems/magic-nix-cache-action@v15
 
-      - uses: cachix/cachix-action@v15
+      - uses: cachix/cachix-action@v17
         with:
           name: seineeloquenz
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
