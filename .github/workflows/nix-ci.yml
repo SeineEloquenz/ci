@@ -7,10 +7,6 @@ on:
         description: JSON array of flake package names to publish as OCI images to GHCR
         type: string
         default: '[]'
-    secrets:
-      CACHIX_AUTH_TOKEN:
-        description: Auth token for pushing to the shared Cachix binary cache
-        required: false
   push:
     branches: [main]
   pull_request:
@@ -68,12 +64,6 @@ jobs:
             experimental-features = nix-command flakes
 
       - uses: DeterminateSystems/magic-nix-cache-action@v14
-
-      - uses: cachix/cachix-action@v15
-        with:
-          name: seineeloquenz
-          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
-          skipPush: ${{ github.ref != 'refs/heads/main' && github.ref_type != 'tag' }}
 
       - name: Build ${{ matrix.entry.attr }}
         run: nix build .#${{ matrix.entry.attr }}
