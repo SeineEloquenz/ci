@@ -30,7 +30,7 @@ on:
         type: boolean
         default: false
       build:
-        description: Build the package after bumping, so a broken bump never reaches a pull request.
+        description: Build the package after bumping. A failed build prefixes the pull request title with `[broken]` and adds the build log to its body.
         type: boolean
         default: true
       working-directory:
@@ -126,11 +126,35 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Build ${{ inputs.package }}
+        id: build
         if: ${{ inputs.build && steps.update.outputs.updated == 'true' }}
+        continue-on-error: true
         working-directory: ${{ inputs.working-directory }}
         env:
           PACKAGE: ${{ inputs.package }}
-        run: nix build --no-link ".#$PACKAGE"
+        run: |
+          log="$RUNNER_TEMP/build.log"
+          if nix build --no-link -L ".#$PACKAGE" > "$log" 2>&1; then
+            exit 0
+          fi
+          cat "$log"
+
+          {
+            echo "warning<<GHADELIMITER"
+            echo "> [!WARNING]"
+            echo "> $PACKAGE fails to build after this bump."
+            echo
+            echo "<details><summary>Build log</summary>"
+            echo
+            echo '```'
+            tail -n 80 "$log"
+            echo '```'
+            echo
+            echo "</details>"
+            echo
+            echo "GHADELIMITER"
+          } >> "$GITHUB_OUTPUT"
+          exit 1
 
       - name: Create or update pull request
         if: steps.update.outputs.updated == 'true'
@@ -141,5 +165,5 @@ jobs:
           branch: update/${{ inputs.package }}
           delete-branch: true
           commit-message: ${{ steps.update.outputs.title }}
-          title: ${{ steps.update.outputs.title }}
-          body: ${{ steps.update.outputs.body }}
+          title: ${{ steps.build.outcome == 'failure' && format('[broken] {0}', steps.update.outputs.title) || steps.update.outputs.title }}
+          body: ${{ steps.build.outputs.warning }}${{ steps.update.outputs.body }}
