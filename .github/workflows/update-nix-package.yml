@@ -29,6 +29,10 @@ on:
         description: Read versions from the GitHub releases API instead of the tag atom feed.
         type: boolean
         default: false
+      subpackages:
+        description: Space-separated attributes of the package whose fixed-output hashes are updated too, i.e. 'node_modules'.
+        type: string
+        default: ""
       build:
         description: Build the package after bumping. A failed build prefixes the pull request title with `[broken]` and adds the build log to its body.
         type: boolean
@@ -84,6 +88,7 @@ jobs:
           VERSION: ${{ inputs.version }}
           VERSION_REGEX: ${{ inputs.version-regex }}
           USE_GITHUB_RELEASES: ${{ inputs.use-github-releases }}
+          SUBPACKAGES: ${{ inputs.subpackages }}
         run: |
           old=$(nix eval --raw ".#$PACKAGE.version")
           echo "Current version: $old"
@@ -99,6 +104,9 @@ jobs:
           if [ "$USE_GITHUB_RELEASES" = "true" ]; then
             args+=(--use-github-releases)
           fi
+          for subpackage in $SUBPACKAGES; do
+            args+=(--subpackage "$subpackage")
+          done
 
           message="$RUNNER_TEMP/commit-message.txt"
           nix run github:SeineEloquenz/ci#nix-update -- \
